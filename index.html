@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ai Mind Hacking Learning Guide</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  :root {
+    --bg1: #050b19;
+    --bg2: #0b1429;
+    --card: rgba(18, 26, 46, 0.9);
+    --accent: #5ab0ff;
+    --text: #eaf1ff;
+    --muted: #9aa8c7;
+    --blur: 18px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    background: radial-gradient(circle at top left, var(--bg2), var(--bg1));
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  header {
+    text-align: center;
+    padding: 60px 20px 20px;
+    position: relative;
+    animation: fadeIn 1.2s ease-in;
+  }
+  header h1 {
+    font-size: 2.2em;
+    color: var(--accent);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  header p {
+    font-size: 15px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  #searchBar {
+    display: block;
+    margin: 25px auto;
+    padding: 10px 15px;
+    border-radius: 12px;
+    border: 1px solid #1c2743;
+    background: #101a33;
+    color: var(--text);
+    font-size: 15px;
+    width: 90%;
+    max-width: 600px;
+    outline: none;
+    transition: 0.3s;
+  }
+  #searchBar:focus { border-color: var(--accent); box-shadow: 0 0 10px #5ab0ff55; }
+
+  #status {
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  #posts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+    padding: 20px 30px 60px;
+  }
+
+  .card {
+    background: var(--card);
+    backdrop-filter: blur(var(--blur));
+    border: 1px solid rgba(90,176,255,0.15);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    transition: all 0.4s ease;
+    transform: translateY(0);
+    opacity: 0;
+    animation: fadeUp 1s ease forwards;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+  }
+  .card h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    color: var(--accent);
+  }
+  .buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .btn {
+    background: #19274b;
+    color: var(--text);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.2s;
+  }
+  .btn:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .content {
+    background: #0b1328;
+    border-radius: 12px;
+    padding: 14px;
+    color: var(--text);
+    max-height: 350px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  footer {
+    text-align: center;
+    padding: 25px 10px;
+    font-size: 13px;
+    color: var(--muted);
+    border-top: 1px solid #1d2945;
+    background: #070d1c;
+  }
+  footer b { color: var(--accent); }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  @keyframes fadeUp {
+    from {opacity: 0; transform: translateY(40px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AiMindHack</h1>
+  <p>Ai Mind Hacking Learning Guide</p>
+</header>
+
+<input type="text" id="searchBar" placeholder="🔍 Search topics...">
+<div id="status">লোড হচ্ছে...</div>
+<div id="posts"></div>
+
+<footer>
+  Copyright © <b>Humayun Shariar Himu</b> | All Rights Reserved
+</footer>
+
+<script>
+const owner = "HumayunShariarHimu";
+const repo = "AiMindHack";
+const branch = "main";
+const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/`;
+
+async function fetchTxtFiles() {
+  const res = await fetch(apiUrl);
+  if (!res.ok) throw new Error("GitHub API তে সমস্যা হয়েছে");
+  const files = await res.json();
+  return files.filter(f => f.name.toLowerCase().endsWith(".txt"));
+}
+
+async function fetchFileContent(url) {
+  const res = await fetch(url);
+  return await res.text();
+}
+
+function createCard(fileName, text) {
+  const div = document.createElement("div");
+  div.className = "card";
+  const title = document.createElement("h2");
+  title.textContent = fileName.replace(".txt", "");
+
+  // Buttons
+  const btnDiv = document.createElement("div");
+  btnDiv.className = "buttons";
+
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "btn";
+  copyBtn.textContent = "📋 Copy";
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(text);
+    copyBtn.textContent = "✅ Copied!";
+    setTimeout(() => copyBtn.textContent = "📋 Copy", 2000);
+  };
+
+  const shareBtn = document.createElement("button");
+  shareBtn.className = "btn";
+  shareBtn.textContent = "🔗 Share";
+  shareBtn.onclick = async () => {
+    const shareData = {
+      title: title.textContent,
+      text: text.substring(0, 200) + "...",
+      url: window.location.href
+    };
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
+
+  btnDiv.appendChild(copyBtn);
+  btnDiv.appendChild(shareBtn);
+
+  const content = document.createElement("div");
+  content.className = "content";
+  content.innerHTML = marked.parse(text);
+
+  div.appendChild(title);
+  div.appendChild(btnDiv);
+  div.appendChild(content);
+  return div;
+}
+
+(async () => {
+  const postsDiv = document.getElementById("posts");
+  const statusEl = document.getElementById("status");
+  try {
+    const files = await fetchTxtFiles();
+    statusEl.textContent = `${files.length} টি .txt ফাইল পাওয়া গেছে`;
+    for (const file of files) {
+      const text = await fetchFileContent(file.download_url);
+      const card = createCard(file.name, text);
+      postsDiv.appendChild(card);
+    }
+    statusEl.textContent = "✅ সকল ফাইল লোড সম্পন্ন";
+
+    // Search filter
+    const searchBar = document.getElementById("searchBar");
+    searchBar.addEventListener("input", e => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll(".card").forEach(card => {
+        const match = card.innerText.toLowerCase().includes(query);
+        card.style.display = match ? "block" : "none";
+      });
+    });
+  } catch (e) {
+    statusEl.textContent = "⚠️ ত্রুটি: " + e.message;
+  }
+})();
+</script>
+</body>
+</html>
